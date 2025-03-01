@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+
+    <!-- ✅ Load Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f4; padding: 20px; }
+
+        /* ✅ Header Styling */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #007BFF; color: white; padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .header h2 { font-size: 22px; }
+        .profile-icon {
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            border: 2px solid white; object-fit: cover;
+        }
+
+        /* ✅ Profile Popup */
+        .profile-popup {
+            display: none; position: absolute; top: 70px; right: 20px;
+            background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 250px; text-align: center; z-index: 100;
+        }
+        .profile-popup p { margin: 5px 0; }
+        .profile-popup button {
+            background: #007BFF; color: white; padding: 8px; border: none;
+            border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%;
+        }
+        .profile-popup button:hover { background: #0056b3; }
+
+        /* ✅ Dashboard Content */
+        .dashboard-container {
+            display: flex; flex-direction: column; margin-top: 20px;
+            padding: 20px; background: white; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* ✅ Search Bar */
+        .search-container {
+            width: 100%; max-width: 300px; margin-bottom: 15px;
+        }
+        .search-container input {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+        }
+
+        /* ✅ Scrollable Page */
+        .dashboard-content { margin-top: 15px; }
+         /* ✅ Navbar */
+         .navbar {
+            display: flex; justify-content: center; gap: 20px;
+            background: white; padding: 15px; margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar button {
+            background: #007BFF; color: white; border: none; 
+            padding: 10px 15px; cursor: pointer; border-radius: 5px;
+        }
+
+    </style>
+    <script>
+                        
+                const urlParams = new URLSearchParams(window.location.search);
+                const studentId = urlParams.get("id");
+    </script>
+</head>
+<body>
+
+    <!-- ✅ Header -->
+    <div class="header">
+        <h2>Welcome, <span id="studentName">Student</span></h2>
+        <img id="profileIcon" class="profile-icon" src="images/profile_photo_logo.png" alt="Profile">
+    </div>
+
+    <!-- ✅ Profile Popup -->
+    <div id="profilePopup" class="profile-popup">
+        <p><strong>Name:</strong> <span id="popupName"></span></p>
+        <p><strong>Email:</strong> <span id="popupEmail"></span></p>
+        <p><strong>Mobile:</strong> <span id="popupMobile"></span></p>
+        <button onclick="updateProfile()">Update Profile</button>
+        <button onclick="updateResume()">Update Resume</button>
+    </div>
+
+    <script>
+        function allJobs() {
+           
+             window.location.href = `allJobs.html?id=${studentId}`;
+        }
+
+        // ✅ Job Opportunities (Placeholder Function)
+        function appliedJobs() {
+            
+            window.location.href = `appliedJobs.html?id=${studentId}`;
+        }
+    </script>
+
+    <!-- ✅ Main Content -->
+    <div class="navbar">
+        <button onclick="allJobs()">All jobs</button>
+        <button onclick="appliedJobs()">My applied job</button>
+    </div>
+
+    <div class="dashboard-container">
+
+        
+        <!-- Student Details -->
+        <div class="dashboard-content">
+            <p><strong>Email:</strong> <span id="email"></span></p>
+            <p><strong>Mobile:</strong> <span id="mobile"></span></p>
+            <p><strong>College:</strong> <span id="college"></span></p>
+            <p><strong>Branch:</strong> <span id="branch"></span></p>
+            <p><strong>Education Status:</strong> <span id="educationStatus"></span></p>
+        </div>
+    </div>
+
+    <!-- ✅ JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                if (typeof supabase === "undefined") {
+                    console.error("Supabase SDK failed to load.");
+                    alert("Error: Supabase SDK not found!");
+                    return;
+                }
+
+                // ✅ Initialize Supabase
+                const SUPABASE_URL = "https://iqskqurljazzejjsjtob.supabase.co";
+                const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+                const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+
+                // ✅ If no student ID, redirect to login
+                if (!studentId) {
+                    alert("Unauthorized access! Redirecting to login.");
+                    window.location.href = "student_login.html";
+                    return;
+                }
+
+                // ✅ Fetch student details
+                const { data, error } = await supabaseClient
+                    .from("student")
+                    .select("*")
+                    .eq("id", studentId)
+                    .single();
+
+                if (error) {
+                    console.error("Error fetching student details:", error.message);
+                    alert("Failed to load dashboard!");
+                    return;
+                }
+
+                // ✅ Update UI
+                document.getElementById("studentName").textContent = data.full_name;
+                document.getElementById("email").textContent = data.email;
+                document.getElementById("mobile").textContent = data.mobile_number;
+                document.getElementById("college").textContent = data.college;
+                document.getElementById("branch").textContent = data.branch;
+                document.getElementById("educationStatus").textContent = data.education_status;
+                document.getElementById("profileIcon").src = data.profile_photo || "default-avatar.png";
+
+                // ✅ Populate Profile Popup
+                document.getElementById("popupName").textContent = data.full_name;
+                document.getElementById("popupEmail").textContent = data.email;
+                document.getElementById("popupMobile").textContent = data.mobile_number;
+            } catch (err) {
+                console.error("Error fetching student details:", err.message);
+                alert("Failed to load dashboard!");
+            }
+        });
+
+        // ✅ Profile Popup Toggle
+        document.getElementById("profileIcon").addEventListener("click", () => {
+            const popup = document.getElementById("profilePopup");
+            popup.style.display = popup.style.display === "block" ? "none" : "block";
+        });
+
+        // ✅ Functions for Profile Updates
+        function updateProfile() {
+            alert("Redirecting to Update Profile page...");
+            window.location.href = "update_profile.html";
+        }
+        function updateResume() {
+            alert("Redirecting to Update Resume page...");
+            window.location.href = "update_resume.html";
+        }
+    </script>
+
+</body>
+</html>

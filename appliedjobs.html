@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applied Jobs</title>
+
+    <!-- ✅ Load Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f4; padding: 20px; }
+
+        /* ✅ Header Styling */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #007BFF; color: white; padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .header h2 { font-size: 22px; }
+
+        /* ✅ Dashboard Content */
+        .dashboard-container {
+            display: flex; flex-direction: column; margin-top: 20px;
+            padding: 20px; background: white; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar {
+            display: flex; justify-content: center; gap: 20px;
+            background: white; padding: 15px; margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar button {
+            background: #007BFF; color: white; border: none; 
+            padding: 10px 15px; cursor: pointer; border-radius: 5px;
+        }
+
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #007BFF; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Welcome, <span id="studentName">Student</span></h2>
+    </div>
+
+    <div class="navbar">
+        <button onclick="dashboard()">Dashboard</button>
+        <button onclick="allJobs()">All Jobs</button>
+        <button onclick="appliedJobs()">My Applied Jobs</button>
+    </div>
+
+    <div class="dashboard-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Company Name</th>
+                    <th>Job Profile</th>
+                    <th>Job Type</th>
+                    <th>Duration</th>
+                    <th>Job Details</th>
+                    <th>Location</th>
+                    <th>Keywords</th>
+                    <th>Applicable Branch</th>
+                    <th>Education Status</th>
+                    <th>Last Date</th>
+                </tr>
+            </thead>
+            <tbody id="jobTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+    const supabaseClient = supabase.createClient(
+        "https://iqskqurljazzejjsjtob.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8"
+    );
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get("id");
+    if (!studentId) {
+        alert("Unauthorized access! Redirecting to login.");
+        window.location.href = "student_login.html";
+        return;
+    }
+
+    const { data: student, error: studentError } = await supabaseClient
+        .from("student")
+        .select("full_name")
+        .eq("id", studentId)
+        .single();
+
+    if (studentError) {
+        console.error("Error fetching student details:", studentError);
+        return;
+    }
+    document.getElementById("studentName").textContent = student.full_name;
+
+    // ✅ Fetch applied jobs in descending order based on created_at
+    const { data: appliedJobs, error: appliedJobsError } = await supabaseClient
+        .from("application")
+        .select("jobid, id")
+        .eq("studentid", studentId)
+        .order("id", { ascending: false }); // Directly fetching in reverse order
+
+    if (appliedJobsError) {
+        console.error("Error fetching applied jobs:", appliedJobsError);
+        return;
+    }
+
+    console.log("Applied Jobs:", appliedJobs);
+
+    const appliedJobIds = appliedJobs.map(job => job.jobid);
+    console.log("Applied Job IDs:", appliedJobIds);
+
+    if (appliedJobIds.length === 0) {
+        document.getElementById("jobTableBody").innerHTML = "<tr><td colspan='11'>No applied jobs found.</td></tr>";
+        return;
+    }
+
+    // ✅ Fetch job details for applied jobs
+    const { data: jobs, error: jobsError } = await supabaseClient
+        .from("jobs")
+        .select("*")
+        .in("id", appliedJobIds);
+
+    if (jobsError) {
+        console.error("Error fetching jobs:", jobsError);
+        return;
+    }
+
+    console.log("Fetched Jobs:", jobs);
+
+    const jobTableBody = document.getElementById("jobTableBody");
+    jobTableBody.innerHTML = "";
+
+    appliedJobs.forEach(app => {
+        const job = jobs.find(job => job.id === app.jobid);
+        if (job) {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${job.id}</td>
+                <td>${job.companyName}</td>
+                <td>${job.jobProfile}</td>
+                <td>${job.jobType}</td>
+                <td>${job.duration}</td>
+                <td>${job.jobDetails}</td>
+                <td>${job.location}</td>
+                <td>${job.keywords}</td>
+                <td>${job.applicableBranch.join(", ")}</td>
+                <td>${job.educationStatus.join(", ")}</td>
+                <td>${job.lastDate}</td>
+            `;
+            jobTableBody.appendChild(row);
+        }
+    });
+});
+
+function dashboard() {
+    window.location.href = `student_dashboard.html?id=${new URLSearchParams(window.location.search).get("id")}`;
+}
+function allJobs() {
+    window.location.href = `allJobs.html?id=${new URLSearchParams(window.location.search).get("id")}`;
+}
+function appliedJobs() {
+    window.location.href = `appliedJobs.html?id=${new URLSearchParams(window.location.search).get("id")}`;
+}
+
+</script>    
+
+</body>
+</html>

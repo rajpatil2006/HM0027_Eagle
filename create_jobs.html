@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Job</title>
+    
+    <!-- ✅ Load Supabase SDK Properly -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js" defer></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f4; padding: 20px; }
+       /* ✅ Form Container */
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ Form Title */
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #222;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* ✅ Labels */
+.container label {
+    display: block;
+    margin-top: 14px;
+    font-weight: bold;
+    color: #333;
+    font-size: 15px;
+}
+
+/* ✅ Input Fields */
+.container input, 
+.container textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.container input:focus, 
+.container textarea:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.container textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* ✅ Buttons */
+.container button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #007BFF, #0056b3);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.container button:hover {
+    background: linear-gradient(135deg, #0056b3, #003c80);
+    transform: scale(1.02);
+}
+
+.container button:active {
+    transform: scale(0.98);
+}
+
+/* ✅ Checkboxes */
+.container input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+    transform: scale(1.1);
+}
+
+/* ✅ Flex for Checkbox Groups */
+.container div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ✅ Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        max-width: 90%;
+    }
+}
+
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: #007BFF; color: white;
+        }
+        .header h2 { margin: 0; }
+        .icons { display: flex; align-items: center; gap: 20px; cursor: pointer; }
+        .icons img { width: 35px; height: 35px; border-radius: 50%; background: white; padding: 5px; }
+        
+        /* ✅ Navbar with Sub-Navbar */
+        .navbar-container {
+            display: flex; justify-content: center; align-items: center;
+            background: white; padding: 15px; margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            display: flex; gap: 20px;
+        }
+        .navbar button {
+            background: #007BFF; color: white; border: none; 
+            padding: 10px 15px; cursor: pointer; border-radius: 5px;
+        }
+        
+        /* ✅ Sub-Navbar in the same line */
+        .sub-navbar {
+            display: flex; gap: 10px; margin-left: 20px;
+        }
+        .sub-navbar button {
+            padding: 8px 12px; border: none; cursor: pointer; border-radius: 5px;
+            font-size: 14px; color: white;
+        }
+        .btn-view-jobs { background: #28a745; } /* Green */
+        .btn-create-jobs { background: #ff8c00; } /* Orange */
+          /* ✅ Profile Dropdown */
+          .profile-dropdown {
+            display: none; position: absolute; top: 60px; right: 30px; 
+            background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 5px; width: 250px;
+        }
+        .profile-dropdown p { margin: 10px 0; font-size: 14px; }
+        .profile-dropdown button {
+            width: 100%; padding: 10px; margin-top: 10px; 
+            border: none; cursor: pointer; border-radius: 5px;
+        }
+        .btn-update { background: #28a745; color: white; }
+        .btn-logout { background: #dc3545; color: white; }
+
+    </style>
+</head>
+<body>
+   
+         <!-- ✅ Header Section -->
+    <div class="header">
+        <h2>Welcome, Admin</h2>
+        <div class="icons">
+            <img src="images/profile_photo_logo.png" id="profileIcon" alt="Profile">
+            <img src="images/logoutlogo.png" id="logoutBtn" alt="Logout">
+        </div>
+    </div>
+
+     <!-- ✅ Profile Dropdown -->
+     <div class="profile-dropdown" id="profileDropdown">
+        <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
+        <button class="btn-update" onclick="updateProfile()">Update Profile</button>
+        <button class="btn-update" onclick="updatePassword()">Update Password</button>
+    </div>
+
+
+    <!-- ✅ Navbar with Sub-Navbar -->
+    <div class="navbar-container">
+        <div class="navbar">
+            <button onclick="registerStudents()">Register Students</button>
+            <button onclick="jobOpportunities()">Job Opportunities</button>
+        </div>
+        <div class="sub-navbar">
+            <button class="btn-view-jobs" onclick="viewJobs()">View Jobs</button>
+            <button class="btn-create-jobs" onclick="createJobs()">Create Jobs</button>
+        </div>
+    </div>
+
+    <script>
+        // ✅ Redirect Functions
+        function registerStudents() {
+            window.location.href = "register_students.html";
+        }
+        function jobOpportunities() {
+            window.location.href = "job_opportunities.html";
+        }
+        function viewJobs() {
+            window.location.href = "view_jobs.html";
+        }
+        function createJobs() {
+            window.location.href = "create_jobs.html";
+        }
+    </script>
+     <div class="container">
+        <h2>Create Job</h2>
+        <form id="jobForm">
+            <label>Job Type:</label>
+            <div>
+                <label><input type="checkbox" name="jobType" value="Internship"> Internship</label>
+                <label><input type="checkbox" name="jobType" value="Placement"> Placement</label>
+                <label><input type="checkbox" name="jobType" value="Training"> Training</label>
+            </div>
+
+            <label>Company Name:</label>
+            <input type="text" id="companyName" required>
+
+            <label>Job Profile:</label>
+            <input type="text" id="jobProfile" required>
+
+            <label>Job Details:</label>
+            <textarea id="jobDetails" required></textarea>
+
+            <label>Duration:</label>
+            <input type="text" id="duration">
+            
+            <label>Location:</label>
+            <input type="text" id="location" required>
+
+            <!-- ✅ Removed Checkboxes, Added Single Input Field -->
+            <label>Job Details Keyword:</label>
+            <input type="text" id="keyword" placeholder="Enter keywords. Separate them through ','." required>
+
+            <label>Applicable Branch:</label>
+            <div>
+                <label><input type="checkbox" name="applicableBranch" value="COMP"> COMP</label>
+                <label><input type="checkbox" name="applicableBranch" value="IT"> IT</label>
+                <label><input type="checkbox" name="applicableBranch" value="CIVIL"> CIVIL</label>
+                <label><input type="checkbox" name="applicableBranch" value="MECH"> MECH</label>
+                <label><input type="checkbox" name="applicableBranch" value="AIML"> AIML</label>
+                <label><input type="checkbox" name="applicableBranch" value="COMP RL"> COMP RL</label>
+                <label><input type="checkbox" name="applicableBranch" value="ENTC"> ENTC</label>
+            </div>
+
+            <label>Applicable Education Status:</label>
+            <div>
+                <label><input type="checkbox" name="educationStatus" value="Completed"> Completed</label>
+                <label><input type="checkbox" name="educationStatus" value="Final Year"> Final Year</label>
+                <label><input type="checkbox" name="educationStatus" value="3rd Year"> 3rd Year</label>
+                <label><input type="checkbox" name="educationStatus" value="2nd Year"> 2nd Year</label>
+                <label><input type="checkbox" name="educationStatus" value="1st Year"> 1st Year</label>
+            </div>
+
+            <label>Last Date to Apply:</label>
+            <input type="date" id="lastDate" required>
+            
+            <button type="button" id="submitBtn">Submit Job</button>
+        </form>
+    </div>
+
+    <!-- ✅ Move Supabase Initialization Here (After Page Loads) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            console.log("✅ DOM fully loaded and parsed");
+
+            // ✅ Initialize Supabase Properly After Supabase SDK Loads
+            const supabaseUrl = "https://iqskqurljazzejjsjtob.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+ 
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                // ✅ Fetch Admin Details
+                const { data, error } = await supabase
+                    .from("admin")  
+                    .select("name, email") 
+                    .single();
+
+                if (error) throw error;
+
+                // ✅ Update UI
+                document.getElementById("adminName").textContent = data.name;
+                document.getElementById("adminEmail").textContent = data.email;
+            } catch (err) {
+                console.error("Error fetching admin details:", err.message);
+                alert("Failed to load admin details!");
+            }
+        });
+ 
+        if (typeof supabase === "undefined") {
+           
+    console.error("❌ Supabase SDK failed to load! Check script URL.");
+                alert("Error: Supabase SDK not loaded!");
+                return;
+            }
+
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+            console.log("✅ Supabase Initialized:", supabaseClient);
+
+            async function submitJob() {
+    const jobType = Array.from(document.querySelectorAll("input[name='jobType']:checked")).map(cb => cb.value);
+    const applicableBranch = Array.from(document.querySelectorAll("input[name='applicableBranch']:checked")).map(cb => cb.value);
+    const educationStatus = Array.from(document.querySelectorAll("input[name='educationStatus']:checked")).map(cb => cb.value);
+    
+    const companyName = document.getElementById("companyName").value;
+    const jobProfile = document.getElementById("jobProfile").value;
+    const jobDetails = document.getElementById("jobDetails").value;
+    const duration = document.getElementById("duration").value;
+    const location = document.getElementById("location").value;
+    const keyword = document.getElementById("keyword").value;
+    const lastDate = document.getElementById("lastDate").value;
+
+    // ✅ Log data before inserting
+    console.log("📤 Submitting Job:", { jobType, companyName, jobProfile, jobDetails, duration, location, keyword, applicableBranch, educationStatus, lastDate });
+
+    const { data, error } = await supabaseClient.from('jobs').insert([
+        {
+            jobType: jobType,
+            companyName: companyName,
+            jobProfile: jobProfile,
+            jobDetails: jobDetails,
+            duration: duration,
+            location: location,
+            keywords: keyword,
+            applicableBranch: applicableBranch,
+            educationStatus: educationStatus,
+            lastDate: lastDate
+        }
+    ]);
+
+    if (error) {
+        console.error("❌ Error inserting job:", error);
+        alert("Error posting job! Check console for details.");
+    } else {
+        alert("✅ Job posted successfully!");
+    }
+}
+
+
+            document.getElementById("submitBtn").addEventListener("click", submitJob);
+        });
+    </script>
+</body>
+</html>
