@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login</title>
+    
+    <!-- ✅ Load Supabase JS first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-bottom: 15px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-container button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .login-container button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .signup-btn {
+            background: #28a745;
+        }
+    </style>
+
+    <script>
+        // ✅ Initialize Supabase AFTER loading the script
+        const SUPABASE_URL = "https://iqskqurljazzejjsjtob.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+   
+        // ✅ Now define Supabase client correctly
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const loginButton = document.getElementById("loginButton");
+
+    if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = "Logging in...";
+
+    try {
+        // ✅ Check email & password in the student table
+        let { data, error } = await supabase
+            .from("student")
+            .select("id") // Only fetch the student ID
+            .eq("email", email)
+            .eq("password", password) // ⚠️ Plain-text password matching (not recommended)
+            .single();
+
+        if (error || !data) {
+            alert("Invalid credentials!");
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
+            return;
+        }
+
+        console.log("Login Successful, Student ID:", data.id);
+
+        // ✅ Redirect to dashboard with student ID in URL
+        window.location.href = `student_dashboard.html?id=${data.id}`;
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        alert("Error logging in: " + err.message);
+    } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "Login";
+    }
+}
+</script>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Student Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="loginButton" onclick="login()">Login</button>
+        <button class="signup-btn" onclick="window.location.href='student_signup.html'">Sign Up</button>
+    </div>
+</body>
+</html>

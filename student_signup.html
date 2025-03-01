@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Signup</title>
+    
+    <!-- ✅ Load Supabase before using it -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; }
+        .signup-container { display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 350px; text-align: center; }
+        .signup-container h2 { margin-bottom: 15px; }
+        .signup-container input, .signup-container select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        .signup-container button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <p id="loadingMessage" style="display: none; color: blue;">Uploading... Please wait.</p>
+
+        <h2>Student Signup</h2>
+        <input type="text" id="fullName" placeholder="Full Name">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password (min 6 characters)">
+        <input type="text" id="mobileNumber" placeholder="Mobile Number">
+
+        <select id="college">
+            <option value="" disabled selected>College Name</option>
+            <option value="PCCOE">PCCOE</option>
+            <option value="PCCOER">PCCOER</option>
+            <option value="NMIT">NMIT</option>
+        </select>
+
+        <select id="branch">
+            <option value="" disabled selected>Engineering Branch</option>
+            <option value="AIML">AIML</option>
+            <option value="COMP">Computer</option>
+            <option value="MECH">Mechanical</option>
+            <option value="IT">IT</option>
+            <option value="ENTC">ENTC</option>
+            <option value="CIVIL">Civil</option>
+            <option value="COMP RL">COMP RL</option>
+        </select>
+
+        <select id="educationStatus">
+            <option value="" disabled selected>Education Status</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="Final Year">Final Year</option>
+            <option value="Completed">Completed</option>
+        </select>
+
+        <label>Upload Profile Photo (Max: 2MB)</label>
+        <input type="file" id="profilePhoto" accept="image/*">
+        
+        <label>Upload Resume (Max: 5MB)</label>
+        <input type="file" id="resume" accept=".pdf,.doc,.docx">
+        
+        <button onclick="submitForm()">Sign Up</button>
+    </div>
+
+    <!-- ✅ Initialize Supabase -->
+    <script>
+        const SUPABASE_URL = "https://iqskqurljazzejjsjtob.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+    
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+        async function uploadFile(file, path) {
+            const { data, error } = await supabase.storage
+                .from("uploads")
+                .upload(path, file, {
+                    cacheControl: "3600",
+                    upsert: true,
+                });
+    
+            if (error) {
+                console.error("Upload Error:", error.message);
+                return null;
+            }
+            return `${SUPABASE_URL}/storage/v1/object/public/uploads/${path}`;
+        }
+    
+        async function submitForm() {
+    const submitButton = document.querySelector("button");
+    submitButton.disabled = true;
+    submitButton.style.backgroundColor = "#ccc";
+    document.getElementById("loadingMessage").style.display = "block";
+
+    // ✅ Get values
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const mobileNumber = document.getElementById("mobileNumber").value.trim();
+    const college = document.getElementById("college").value;
+    const branch = document.getElementById("branch").value;
+    const educationStatus = document.getElementById("educationStatus").value;
+    const profilePhotoFile = document.getElementById("profilePhoto").files[0];
+    const resumeFile = document.getElementById("resume").files[0];
+
+    // ✅ Validation
+    if (!fullName || !email || !password || !mobileNumber || !college || !branch || !educationStatus || !profilePhotoFile || !resumeFile) {
+        alert("All fields are required!");
+        resetFormState();
+        return;
+    }
+
+    if (!/^[A-Za-z\s]+$/.test(fullName)) {
+        alert("Full Name must contain only alphabets!");
+        resetFormState();
+        return;
+    }
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        alert("Enter a valid email address!");
+        resetFormState();
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters long!");
+        resetFormState();
+        return;
+    }
+
+    if (!/^\d{10}$/.test(mobileNumber)) {
+        alert("Mobile number must be exactly 10 digits long!");
+        resetFormState();
+        return;
+    }
+
+    if (profilePhotoFile.size > 2 * 1024 * 1024) {
+        alert("Profile photo must be less than 2MB!");
+        resetFormState();
+        return;
+    }
+
+    if (resumeFile.size > 5 * 1024 * 1024) {
+        alert("Resume must be less than 5MB!");
+        resetFormState();
+        return;
+    }
+
+    let profilePhotoUrl = await uploadFile(profilePhotoFile, `profile_photos/${Date.now()}_${profilePhotoFile.name}`);
+    let resumeUrl = await uploadFile(resumeFile, `resumes/${Date.now()}_${resumeFile.name}`);
+
+    // ✅ Insert into Supabase
+    const { error } = await supabase
+        .from('student')
+        .insert([{ 
+            full_name: fullName,
+            email: email,
+            password: password,  // ⚠️ Store password directly (consider hashing it)
+            mobile_number: mobileNumber,
+            college: college,
+            branch: branch,
+            education_status: educationStatus,
+            profile_photo: profilePhotoUrl,
+            resume: resumeUrl
+        }]);
+
+    if (error) {
+        alert("Error: " + error.message);
+        console.error(error);
+    } else {
+        alert("Signup successful!");
+        window.location.href = "student_login.html"; 
+    }
+
+    resetFormState();
+}
+
+function resetFormState() {
+    document.getElementById("loadingMessage").style.display = "none";
+    document.querySelector("button").disabled = false;
+    document.querySelector("button").style.backgroundColor = "#28a745";
+}
+
+    </script>
+</body>
+</html>

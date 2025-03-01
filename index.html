@@ -1,9 +1,88 @@
-<html>
-    <head>
-        <title>My first project</title>
-    </head>
-    <body>
-        
-        <h2>this is page</h2>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student & Admin Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            gap: 50px;
+        }
+        .box {
+            width: 150px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .box img {
+            width: 80px;
+            height: 80px;
+        }
+        .box p {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-container button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box" onclick="window.location.href='student_login.html'">
+            <img src="images/studlogo.png" alt="Student Logo">
+            <p>Student</p>
+        </div>
+        <div class="box" onclick="window.location.href='admin_login.html'">
+            <img src="images/adminlogo.jpeg" alt="Admin Logo">
+            <p>Admin</p>
+        </div>
+    </div>
+</body>
 </html>

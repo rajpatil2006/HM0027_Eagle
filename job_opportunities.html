@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job opportunities</title>
+    
+    <!-- ✅ Load Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f4; }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: #007BFF; color: white;
+        }
+        .header h2 { margin: 0; }
+        .icons { display: flex; align-items: center; gap: 20px; cursor: pointer; }
+        .icons img { width: 35px; height: 35px; border-radius: 50%; background: white; padding: 5px; }
+        
+        /* ✅ Navbar with Sub-Navbar */
+        .navbar-container {
+            display: flex; justify-content: center; align-items: center;
+            background: white; padding: 15px; margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            display: flex; gap: 20px;
+        }
+        .navbar button {
+            background: #007BFF; color: white; border: none; 
+            padding: 10px 15px; cursor: pointer; border-radius: 5px;
+        }
+        
+        /* ✅ Sub-Navbar in the same line */
+        .sub-navbar {
+            display: flex; gap: 10px; margin-left: 20px;
+        }
+        .sub-navbar button {
+            padding: 8px 12px; border: none; cursor: pointer; border-radius: 5px;
+            font-size: 14px; color: white;
+        }
+        .btn-view-jobs { background: #28a745; } /* Green */
+        .btn-create-jobs { background: #ff8c00; } /* Orange */
+    </style>
+</head>
+<body>
+
+    <!-- ✅ Header Section -->
+    <div class="header">
+        <h2>Welcome, Admin</h2>
+        <div class="icons">
+            <img src="images/profile_photo_logo.png" id="profileIcon" alt="Profile">
+            <img src="images/logoutlogo.png" id="logoutBtn" alt="Logout">
+        </div>
+    </div>
+
+    <!-- ✅ Navbar with Sub-Navbar -->
+    <div class="navbar-container">
+        <div class="navbar">
+            <button onclick="registerStudents()">Register Students</button>
+            <button onclick="jobOpportunities()">Job Opportunities</button>
+        </div>
+        <div class="sub-navbar">
+            <button class="btn-view-jobs" onclick="viewJobs()">View Jobs</button>
+            <button class="btn-create-jobs" onclick="createJobs()">Create Jobs</button>
+        </div>
+    </div>
+
+    <script>
+        // ✅ Redirect Functions
+        function registerStudents() {
+            window.location.href = "register_students.html";
+        }
+        function jobOpportunities() {
+            window.location.href = "job_opportunities.html";
+        }
+        function viewJobs() {
+            window.location.href = "view_jobs.html";
+        }
+        function createJobs() {
+            window.location.href = "create_jobs.html";
+        }
+    </script>
+</body>
+</html>
