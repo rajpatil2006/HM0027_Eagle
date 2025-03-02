@@ -86,21 +86,11 @@
     </div>
 
     <script>
-       
+        
                         
                         const urlParams = new URLSearchParams(window.location.search);
                         const studentId = urlParams.get("id");
-            
-        function allJobs() {
-           
-             window.location.href = `allJobs.html?id=${studentId}`;
-        }
-
-        // ✅ Job Opportunities (Placeholder Function)
-        function appliedJobs() {
-            
-            window.location.href = `appliedJobs.html?id=${studentId}`;
-        }
+       
     </script>
 
     <!-- ✅ Main Content -->
@@ -178,6 +168,17 @@
             }
         });
 
+             
+        function allJobs() {
+           
+           window.location.href = `/allJobs.html?id=${studentId}`;
+      }
+
+      // ✅ Job Opportunities (Placeholder Function)
+      function appliedJobs() {
+          
+          window.location.href = `/appliedJobs.html?id=${studentId}`;
+      }
         // ✅ Profile Popup Toggle
         document.getElementById("profileIcon").addEventListener("click", () => {
             const popup = document.getElementById("profilePopup");
