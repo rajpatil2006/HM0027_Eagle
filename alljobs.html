@@ -4,32 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display All Jobs</title>
+
+    <!-- ✅ Load Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f4f4; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: #007BFF; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #007BFF; color: white; padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
         .header h2 { font-size: 22px; }
-        .profile-icon { width: 50px; height: 50px; border-radius: 50%; cursor: pointer; border: 2px solid white; object-fit: cover; }
-        .dashboard-container { display: flex; flex-direction: column; margin-top: 20px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
-        .navbar { display: flex; justify-content: center; gap: 20px; background: white; padding: 15px; margin: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        .navbar button { background: #007BFF; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
-        table { border-collapse: collapse; width: 100%; }
+        .profile-icon {
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            border: 2px solid white; object-fit: cover;
+        }
+
+        .dashboard-container {
+            display: flex; flex-direction: column; margin-top: 20px;
+            padding: 20px; background: white; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar {
+            display: flex; justify-content: center; gap: 20px;
+            background: white; padding: 15px; margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar button {
+            background: #007BFF; color: white; border: none; 
+            padding: 10px 15px; cursor: pointer; border-radius: 5px;
+        }
+
+        table { width:100%;border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
         th { background: #007BFF; color: white; }
         .apply-logo { width: 30px; height: 30px; cursor: pointer; }
+        .search-bar { margin-bottom: 10px; }
+        .search-bar input { width: 40%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        
     </style>
 </head>
 <body>
+
     <div class="header">
         <h2>Welcome, <span id="studentName">Student</span></h2>
-        <img id="profileIcon" class="profile-icon" src="/images/profile_photo_logo.png" alt="Profile">
+        <img id="profileIcon" class="profile-icon" src="images/profile_photo_logo.png" alt="Profile">
     </div>
+
     <div class="navbar">
-        <button onclick="navigate('student_dashboard.html')">Dashboard</button>
-        <button onclick="navigate('alljobs.html')">All jobs</button>
-        <button onclick="navigate('appliedjobs.html')">My applied jobs</button>
+        <button onclick="dashboard()">Dashboard</button>
+        <button onclick="allJobs()">All jobs</button>
+        <button onclick="appliedJobs()">My applied jobs</button>
     </div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search by keywords..." oninput="filterJobs()">
+    </div>
+
     <div class="dashboard-container">
         <table>
             <thead>
@@ -51,32 +85,78 @@
             <tbody id="jobTableBody"></tbody>
         </table>
     </div>
+
     <script>
-        const SUPABASE_URL = "https://iqskqurljazzejjsjtob.supabase.co";
-        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = supabase.createClient(
+            "https://iqskqurljazzejjsjtob.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8"
+        );
+
         const urlParams = new URLSearchParams(window.location.search);
         const studentId = urlParams.get("id");
+
         if (!studentId) {
             alert("Unauthorized access! Redirecting to login.");
             window.location.href = "student_login.html";
         }
-        function navigate(page) {
-            window.location.href = `/${page}?id=${studentId}`;
+
+        function dashboard() {
+            window.location.href = `student_dashboard.html?id=${studentId}`;
         }
+        function allJobs() {
+            window.location.href = `alljobs.html?id=${studentId}`;
+        }
+        function appliedJobs() {
+            window.location.href = `appliedjobs.html?id=${studentId}`;
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
-            try {
-                const { data: student, error: studentError } = await supabaseClient.from("student").select("branch, education_status, full_name").eq("id", studentId).single();
-                if (studentError) throw studentError;
-                document.getElementById("studentName").textContent = student.full_name;
-                const { data: appliedJobs, error: appliedJobsError } = await supabaseClient.from("application").select("jobid").eq("studentid", studentId);
-                if (appliedJobsError) throw appliedJobsError;
-                const appliedJobIds = appliedJobs ? appliedJobs.map(job => job.jobid) : [];
-                const { data: jobs, error: jobsError } = await supabaseClient.from("jobs").select("*").contains("applicableBranch", [student.branch]).contains("educationStatus", [student.education_status]);
-                if (jobsError) throw jobsError;
-                const filteredJobs = jobs.filter(job => !appliedJobIds.includes(job.id));
-                const jobTableBody = document.getElementById("jobTableBody");
-                jobTableBody.innerHTML = "";
+            const { data: student, error: studentError } = await supabaseClient
+                .from("student")
+                .select("branch, education_status, full_name")
+                .eq("id", studentId)
+                .single();
+
+            if (studentError) {
+                console.error("Error fetching student details:", studentError);
+                return;
+            }
+
+            document.getElementById("studentName").textContent = student.full_name;
+
+            // ✅ Fetch applied jobs
+            const { data: appliedJobs, error: appliedJobsError } = await supabaseClient
+                .from("application")
+                .select("jobid")
+                .eq("studentid", studentId);
+
+            if (appliedJobsError) {
+                console.error("Error fetching applied jobs:", appliedJobsError);
+                return;
+            }
+
+            const appliedJobIds = appliedJobs ? appliedJobs.map(job => job.jobid) : [];
+
+            // ✅ Fetch jobs that match the student's criteria
+            const { data: jobs, error: jobsError } = await supabaseClient
+                .from("jobs")
+                .select("*")
+                .contains("applicableBranch", [student.branch])
+                .contains("educationStatus", [student.education_status]);
+
+            if (jobsError) {
+                console.error("Error fetching jobs:", jobsError);
+                return;
+            }
+
+            const filteredJobs = jobs.filter(job => !appliedJobIds.includes(job.id));
+
+            const jobTableBody = document.getElementById("jobTableBody");
+            jobTableBody.innerHTML = "";
+
+            if (filteredJobs.length === 0) {
+                jobTableBody.innerHTML = `<tr><td colspan="12" style="text-align: center; font-weight: bold; color: red;">No jobs available</td></tr>`;
+            } else {
                 filteredJobs.forEach(job => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
@@ -91,25 +171,35 @@
                         <td>${job.applicableBranch.join(", ")}</td>
                         <td>${job.educationStatus.join(", ")}</td>
                         <td>${job.lastDate}</td>
-                        <td><img src="/images/resumelogo.png" class="apply-logo" onclick="applyJob(${job.id})" alt="Apply"></td>`;
+                        <td><img src="images/resumelogo.png" class="apply-logo" onclick="applyJob(${job.id})" alt="Apply"></td>
+                    `;
                     jobTableBody.appendChild(row);
                 });
-            } catch (err) {
-                console.error("Error loading data:", err);
-                alert("Failed to load data!");
             }
         });
+
         async function applyJob(jobId) {
             if (!confirm(`Are you sure you want to apply for Job ID: ${jobId}?`)) return;
-            const { error } = await supabaseClient.from("application").insert([{ jobid: jobId, studentid: studentId }]);
+            if (!confirm(`This action cannot be undone. Do you really want to proceed?`)) return;
+
+            const { error } = await supabaseClient
+                .from("application")
+                .insert([{ jobid: jobId, studentid: studentId }]);
+
             if (error) {
-                console.error("Error applying:", error);
-                alert("Failed to apply.");
+                console.error("Error applying for job:", error);
+                alert("Failed to apply for the job. Please try again.");
             } else {
-                alert("Application Successful!");
+                alert("✅ You have successfully applied for this job!");
                 location.reload();
             }
         }
+        function filterJobs() {
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const filteredJobs = allJobs.filter(job => job.keywords.toLowerCase().includes(searchInput));
+            displayJobs(filteredJobs);
+        }
     </script>
+
 </body>
 </html>
