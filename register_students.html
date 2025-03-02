@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Students</title>
 
-    <!-- ✅ Load Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
     <style>
@@ -54,16 +53,17 @@
         th:nth-child(3), td:nth-child(3) { width: 200px; }
         th:nth-child(4), td:nth-child(4) { width: 180px; }
         th:nth-child(5), td:nth-child(5) { width: 150px; }
-        th:nth-child(6), td:nth-child(6) { width: 80px; }
+        th:nth-child(6), td:nth-child(6) { width: 100px; }
         th:nth-child(7), td:nth-child(7) { width: 80px; }
         th:nth-child(8), td:nth-child(8) { width: 80px; }
         th:nth-child(9), td:nth-child(9) { width: 80px; }
+        th:nth-child(10), td:nth-child(10) { width: 80px; }
 
         /* ✅ Action Icons */
         .action-icons { cursor: pointer; width: 25px; margin: 0 5px; }
 
-         /* ✅ Navbar */
-         .navbar {
+        /* ✅ Navbar */
+        .navbar {
             display: flex; justify-content: center; gap: 20px;
             background: white; padding: 15px; margin: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -72,11 +72,20 @@
             background: #007BFF; color: white; border: none; 
             padding: 10px 15px; cursor: pointer; border-radius: 5px;
         }
+        /*search bar*/
+        .search-container {
+            margin: 10px 20px;
+        }
+        .search-container input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ✅ Header Section -->
     <div class="header">
         <h2>Welcome, Admin</h2>
         <div class="icons">
@@ -85,20 +94,22 @@
         </div>
     </div>
 
-    <!-- ✅ Profile Dropdown -->
     <div class="profile-dropdown" id="profileDropdown">
         <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
         <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
-        <button class="btn-update" onclick="updateProfile()">Update Profile</button>
-        <button class="btn-update" onclick="updatePassword()">Update Password</button>
+        <button class="btn-update" onclick="updateProfile()">Update Profile/Password</button>
+       
     </div>
 
     <div class="navbar">
         <button onclick="registerStudents()">Register Students</button>
         <button onclick="jobOpportunities()">Job Opportunities</button>
     </div>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by name...">
+    </div>
 
-    <!-- ✅ Student Table -->
     <div class="table-container">
         <h2>Registered Students</h2>
         <table>
@@ -109,6 +120,7 @@
                     <th>Email</th>
                     <th>College</th>
                     <th>Branch</th>
+                    <th>Study Year</th>
                     <th>Profile</th>
                     <th>Resume</th>
                     <th>Update</th>
@@ -116,8 +128,7 @@
                 </tr>
             </thead>
             <tbody id="studentTableBody">
-                <!-- Data will be inserted dynamically -->
-            </tbody>
+                </tbody>
         </table>
     </div>
 
@@ -132,7 +143,7 @@
             try {
                 // ✅ Fetch Admin Details
                 const { data, error } = await supabase
-                    .from("admin")  
+                    .from("admin") 
                     .select("name, email") 
                     .single();
 
@@ -145,6 +156,7 @@
                 console.error("Error fetching admin details:", err.message);
                 alert("Failed to load admin details!");
             }
+            fetchStudents();
         });
 
         // ✅ Show/Hide Profile Dropdown
@@ -155,44 +167,52 @@
 
         // ✅ Logout Function
         document.getElementById("logoutBtn").addEventListener("click", () => {
+            alert("Log out...");
+           
             window.location.href = "index.html";
         });
-
         // ✅ Update Profile (Placeholder Function)
         function updateProfile() {
-            alert("Redirecting to update profile page...");
-            // window.location.href = "update_profile.html";
+           window.location.href = "update_profile.html";
         }
 
         // ✅ Update Password (Placeholder Function)
         function updatePassword() {
-           
             // window.location.href = "update_password.html";
         }
 
         // ✅ Register Students (Placeholder Function)
         function registerStudents() {
-            
-             window.location.href = "register_students.html";
+            window.location.href = "register_students.html";
         }
 
         // ✅ Job Opportunities (Placeholder Function)
         function jobOpportunities() {
-           
-             window.location.href = "job_opportunities.html";
+            window.location.href = "job_opportunities.html";
         }
 
         // ✅ Fetch Students
-        document.addEventListener("DOMContentLoaded", async () => {
+        async function fetchStudents() {
             try {
                 const { data, error } = await supabase.from("student").select("*");
 
                 if (error) throw error;
 
-                const tableBody = document.getElementById("studentTableBody");
-                tableBody.innerHTML = "";
+                populateTable(data);
+            } catch (err) {
+                console.error("Error fetching students:", err.message);
+                alert("Failed to load student data!");
+            }
+        }
 
-                data.forEach(student => {
+        function populateTable(students) {
+            const tableBody = document.getElementById("studentTableBody");
+            tableBody.innerHTML = "";
+
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+
+            students.forEach(student => {
+                if (student.full_name.toLowerCase().includes(searchTerm)) {
                     const profilePhoto = student.profile_photo ? student.profile_photo : "default-profile.png";
                     const resumeLink = student.resume ? student.resume : "#";
 
@@ -203,6 +223,7 @@
                             <td>${student.email}</td>
                             <td>${student.college}</td>
                             <td>${student.branch}</td>
+                            <td>${student.education_status}</td>
                             <td>
                                 ${student.profile_photo ? `<a href="${student.profile_photo}" target="_blank"><img src="images/profile_photo_logo.png" class="action-icons" alt="Profile"></a>` : "N/A"}
                             </td>
@@ -219,12 +240,9 @@
                             </td>
                         </tr>
                     `;
-                });
-            } catch (err) {
-                console.error("Error fetching students:", err.message);
-                alert("Failed to load student data!");
-            }
-        });
+                }
+            });
+        }
 
         // ✅ Function to Delete Student
         async function deleteStudent(studentId) {
@@ -243,13 +261,18 @@
                     alert("Error deleting student.");
                 } else {
                     alert("Student deleted successfully.");
-                    location.reload();
+                    fetchStudents();
                 }
             } catch (err) {
                 console.error("Error deleting student:", err.message);
                 alert("Failed to delete student.");
             }
         }
+
+        // ✅ Search Functionality
+        document.getElementById("searchInput").addEventListener("input", () => {
+            fetchStudents();
+        });
     </script>
 
 </body>

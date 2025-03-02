@@ -4,29 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Applied Jobs</title>
-
-    <!-- ✅ Load Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f4f4; padding: 20px; }
-
-        /* ✅ Header Styling */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             background: #007BFF; color: white; padding: 15px 20px; border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .header h2 { font-size: 22px; }
-
-        /* ✅ Dashboard Content */
+        .profile-icon {
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            border: 2px solid white; object-fit: cover;
+        }
         .dashboard-container {
             display: flex; flex-direction: column; margin-top: 20px;
             padding: 20px; background: white; border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: auto; /* Add scrollbar */
         }
-
         .navbar {
             display: flex; justify-content: center; gap: 20px;
             background: white; padding: 15px; margin: 10px;
@@ -36,24 +33,33 @@
             background: #007BFF; color: white; border: none; 
             padding: 10px 15px; cursor: pointer; border-radius: 5px;
         }
-
         table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; white-space: nowrap; }
         th { background: #007BFF; color: white; }
+        /* Constant column widths */
+        th:nth-child(1), td:nth-child(1) { width: 50px; } /* Job ID */
+        th:nth-child(2), td:nth-child(2) { width: 150px; } /* Company Name */
+        th:nth-child(3), td:nth-child(3) { width: 150px; } /* Job Profile */
+        th:nth-child(4), td:nth-child(4) { width: 100px; } /* Job Type */
+        th:nth-child(5), td:nth-child(5) { width: 80px; } /* Duration */
+        th:nth-child(6), td:nth-child(6) { width: 200px; } /* Job Details */
+        th:nth-child(7), td:nth-child(7) { width: 120px; } /* Location */
+        th:nth-child(8), td:nth-child(8) { width: 180px; } /* Keywords */
+        th:nth-child(9), td:nth-child(9) { width: 150px; } /* Applicable Branch */
+        th:nth-child(10), td:nth-child(10) { width: 150px; } /* Education Status */
+        th:nth-child(11), td:nth-child(11) { width: 100px; } /* Last Date */
     </style>
 </head>
 <body>
-
     <div class="header">
         <h2>Welcome, <span id="studentName">Student</span></h2>
+        <img id="profileIcon" class="profile-icon" src="images/logoutlogo.png" alt="Profile">
     </div>
-
     <div class="navbar">
         <button onclick="dashboard()">Dashboard</button>
         <button onclick="allJobs()">All Jobs</button>
         <button onclick="appliedJobs()">My Applied Jobs</button>
     </div>
-
     <div class="dashboard-container">
         <table>
             <thead>
@@ -72,116 +78,99 @@
                 </tr>
             </thead>
             <tbody id="jobTableBody">
-                <!-- Data will be inserted here dynamically -->
-            </tbody>
+                </tbody>
         </table>
     </div>
-
     <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-        const supabaseClient = supabase.createClient(
-            "https://iqskqurljazzejjsjtob.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8"
-        );
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const studentId = urlParams.get("id");
-        if (!studentId) {
-            alert("Unauthorized access! Redirecting to login.");
-            window.location.href = "student_login.html";
-            return;
-        }
-
-        const { data: student, error: studentError } = await supabaseClient
-            .from("student")
-            .select("full_name")
-            .eq("id", studentId)
-            .single();
-
-        if (studentError) {
-            console.error("Error fetching student details:", studentError);
-            return;
-        }
-        document.getElementById("studentName").textContent = student.full_name;
-
-        // ✅ Fetch applied jobs in descending order
-        const { data: appliedJobs, error: appliedJobsError } = await supabaseClient
-            .from("application")
-            .select("jobid, id")
-            .eq("studentid", studentId)
-            .order("id", { ascending: false });
-
-        if (appliedJobsError) {
-            console.error("Error fetching applied jobs:", appliedJobsError);
-            return;
-        }
-
-        console.log("Applied Jobs:", appliedJobs);
-
-        const appliedJobIds = appliedJobs.map(job => job.jobid);
-
-        if (appliedJobIds.length === 0) {
-            document.getElementById("jobTableBody").innerHTML = 
-                "<tr><td colspan='11' style='text-align:center; font-weight:bold; color:red;'>No applied jobs found.</td></tr>";
-            return;
-        }
-
-        // ✅ Fetch job details for applied jobs
-        const { data: jobs, error: jobsError } = await supabaseClient
-            .from("jobs")
-            .select("*")
-            .in("id", appliedJobIds);
-
-        if (jobsError) {
-            console.error("Error fetching jobs:", jobsError);
-            return;
-        }
-
-        console.log("Fetched Jobs:", jobs);
-
-        const jobTableBody = document.getElementById("jobTableBody");
-        jobTableBody.innerHTML = "";
-
-        let jobsAdded = false;
-        appliedJobs.forEach(app => {
-            const job = jobs.find(job => job.id === app.jobid);
-            if (job) {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${job.id}</td>
-                    <td>${job.companyName}</td>
-                    <td>${job.jobProfile}</td>
-                    <td>${job.jobType}</td>
-                    <td>${job.duration}</td>
-                    <td>${job.jobDetails}</td>
-                    <td>${job.location}</td>
-                    <td>${job.keywords}</td>
-                    <td>${job.applicableBranch ? job.applicableBranch.join(", ") : "N/A"}</td>
-                    <td>${job.educationStatus ? job.educationStatus.join(", ") : "N/A"}</td>
-                    <td>${job.lastDate}</td>
-                `;
-                jobTableBody.appendChild(row);
-                jobsAdded = true;
+        document.addEventListener("DOMContentLoaded", async () => {
+            const supabaseClient = supabase.createClient(
+                "https://iqskqurljazzejjsjtob.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8"
+            );
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentId = urlParams.get("id");
+            if (!studentId) {
+                alert("Unauthorized access! Redirecting to login.");
+                window.location.href = "student_login.html";
+                return;
+            }
+            const { data: student, error: studentError } = await supabaseClient
+                .from("student")
+                .select("full_name")
+                .eq("id", studentId)
+                .single();
+            if (studentError) {
+                console.error("Error fetching student details:", studentError);
+                return;
+            }
+            document.getElementById("studentName").textContent = student.full_name;
+            const { data: appliedJobs, error: appliedJobsError } = await supabaseClient
+                .from("application")
+                .select("jobid, id")
+                .eq("studentid", studentId)
+                .order("id", { ascending: false });
+            if (appliedJobsError) {
+                console.error("Error fetching applied jobs:", appliedJobsError);
+                return;
+            }
+            console.log("Applied Jobs:", appliedJobs);
+            const appliedJobIds = appliedJobs.map(job => job.jobid);
+            if (appliedJobIds.length === 0) {
+                document.getElementById("jobTableBody").innerHTML = 
+                    "<tr><td colspan='11' style='text-align:center; font-weight:bold; color:red;'>No applied jobs found.</td></tr>";
+                return;
+            }
+            const { data: jobs, error: jobsError } = await supabaseClient
+                .from("jobs")
+                .select("*")
+                .in("id", appliedJobIds);
+            if (jobsError) {
+                console.error("Error fetching jobs:", jobsError);
+                return;
+            }
+            console.log("Fetched Jobs:", jobs);
+            const jobTableBody = document.getElementById("jobTableBody");
+            jobTableBody.innerHTML = "";
+            let jobsAdded = false;
+            appliedJobs.forEach(app => {
+                const job = jobs.find(job => job.id === app.jobid);
+                if (job) {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><span class="math-inline">\{job\.id\}</td\>
+<td\></span>{job.companyName}</td>
+                        <td><span class="math-inline">\{job\.jobProfile\}</td\>
+<td\></span>{job.jobType}</td>
+                        <td><span class="math-inline">\{job\.duration\}</td\>
+<td\></span>{job.jobDetails}</td>
+                        <td><span class="math-inline">\{job\.location\}</td\>
+<td\></span>{job.keywords}</td>
+                        <td><span class="math-inline">\{job\.applicableBranch ? job\.applicableBranch\.join\(", "\) \: "N/A"\}</td\>
+<td\></span>{job.educationStatus ? job.educationStatus.join(", ") : "N/A"}</td>
+                        <td>${job.lastDate}</td>
+                    `;
+                    jobTableBody.appendChild(row);
+                    jobsAdded = true;
+                }
+            });
+            if (!jobsAdded) {
+                jobTableBody.innerHTML = 
+                    "<tr><td colspan='11' style='text-align:center; font-weight:bold; color:red;'>No jobs available.</td></tr>";
             }
         });
-
-        // ✅ If no jobs were added, show a message
-        if (!jobsAdded) {
-            jobTableBody.innerHTML = 
-                "<tr><td colspan='11' style='text-align:center; font-weight:bold; color:red;'>No jobs available.</td></tr>";
+        function dashboard() {
+            window.location.href = `student_dashboard.html?id=${new URLSearchParams(window.location.search).get("id")}`;
         }
-    });
-
-    function dashboard() {
-        window.location.href = `student_dashboard.html?id=${new URLSearchParams(window.location.search).get("id")}`;
-    }
-    function allJobs() {
-        window.location.href = `alljobs.html?id=${new URLSearchParams(window.location.search).get("id")}`;
-    }
-    function appliedJobs() {
-        window.location.href = `appliedjobs.html?id=${new URLSearchParams(window.location.search).get("id")}`;
-    }
-    </script>    
-
+        function allJobs() {
+            window.location.href = `alljobs.html?id=${new URLSearchParams(window.location.search).get("id")}`;
+        }
+        function appliedJobs() {
+            window.location.href = `appliedjobs.html?id=${new URLSearchParams(window.location.search).get("id")}`;
+        }
+        document.getElementById("profileIcon").addEventListener("click", () => {
+            alert("Log out!");
+            window.location.href = "index.html";
+        });
+    </script>
 </body>
 </html>

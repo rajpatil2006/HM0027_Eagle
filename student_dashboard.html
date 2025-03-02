@@ -20,9 +20,10 @@
         }
         .header h2 { font-size: 22px; }
         .profile-icon {
-            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
-            border: 2px solid white; object-fit: cover;
-        }
+    width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+    border: 2px solid white; object-fit: cover;
+    margin-left: auto; /* Push the first icon to the right */
+}
 
         /* ✅ Profile Popup */
         .profile-popup {
@@ -74,15 +75,17 @@
     <div class="header">
         <h2>Welcome, <span id="studentName">Student</span></h2>
         <img id="profileIcon" class="profile-icon" src="images/profile_photo_logo.png" alt="Profile">
+        <img id="logoutbtn" class="profile-icon" src="images/logoutlogo.png" alt="Profile" style="margin-left: 10px;">
     </div>
 
     <!-- ✅ Profile Popup -->
     <div id="profilePopup" class="profile-popup">
+       
         <p><strong>Name:</strong> <span id="popupName"></span></p>
         <p><strong>Email:</strong> <span id="popupEmail"></span></p>
         <p><strong>Mobile:</strong> <span id="popupMobile"></span></p>
-        <button onclick="updateProfile()">Update Profile</button>
-        <button onclick="updateResume()">Update Resume</button>
+        <button onclick="updateProfile()">Update Profile/Resume</button>
+        
     </div>
 
     <script>
@@ -104,6 +107,7 @@
         
         <!-- Student Details -->
         <div class="dashboard-content">
+            <h4 style="color: #0056b3;">Your Details:</h4><br>
             <p><strong>Email:</strong> <span id="email"></span></p>
             <p><strong>Mobile:</strong> <span id="mobile"></span></p>
             <p><strong>College:</strong> <span id="college"></span></p>
@@ -188,12 +192,13 @@
         // ✅ Functions for Profile Updates
         function updateProfile() {
             alert("Redirecting to Update Profile page...");
-            window.location.href = "update_profile.html";
+            window.location.href = `student_update.html?id=${studentId}`;
         }
-        function updateResume() {
-            alert("Redirecting to Update Resume page...");
-            window.location.href = "update_resume.html";
-        }
+        document.getElementById("logoutbtn").addEventListener("click", () => {
+            alert("Log out!");
+            window.location.href = "index.html";
+        });
+       
     </script>
 
 </body>

@@ -172,6 +172,8 @@
        
             document.addEventListener("DOMContentLoaded", async () => {
     try {
+
+        
         // ✅ Get job ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const jobid = urlParams.get("jobId");
@@ -236,11 +238,34 @@
             `;
         });
 
+        const { data, error } = await supabase
+                    .from("admin")
+                    .select("name, email")
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById("adminName").textContent = data.name;
+                document.getElementById("adminEmail").textContent = data.email;
+                document.getElementById("adminNameInput").value = data.name;
+                document.getElementById("adminEmailInput").value = data.email;
+
     } catch (err) {
         console.error("Error fetching students:", err.message);
         alert("Failed to load student data!");
     }
 });
+
+document.getElementById("profileIcon").addEventListener("click", () => {
+            const dropdown = document.getElementById("profileDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            alert("Log out..");
+           
+            window.location.href = "index.html";
+        });
 
 
         // ✅ Function to Delete Student

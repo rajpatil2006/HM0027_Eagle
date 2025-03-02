@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Admin Profile</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f4; }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: #007BFF; color: white;
+        }
+        .header h2 { margin: 0; }
+        .icons { display: flex; align-items: center; gap: 20px; cursor: pointer; }
+        .icons img { width: 35px; height: 35px; border-radius: 50%; background: white; padding: 5px; }
+
+        .profile-dropdown {
+            display: none; position: absolute; top: 60px; right: 30px; 
+            background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 5px; width: 250px;
+        }
+        .profile-dropdown p { margin: 10px 0; font-size: 14px; }
+        .profile-dropdown button {
+            width: 100%; padding: 10px; margin-top: 10px; 
+            border: none; cursor: pointer; border-radius: 5px;
+        }
+        .btn-update { background: #28a745; color: white; }
+        .btn-logout { background: #dc3545; color: white; }
+
+        .navbar {
+            display: flex; justify-content: center; gap: 20px;
+            background: white; padding: 15px; margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar button {
+            background: #007BFF; color: white; border: none; 
+            padding: 10px 15px; cursor: pointer; border-radius: 5px;
+        }
+
+        .form-container {
+            margin: 20px auto; background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+        }
+        .form-container h2 { text-align: center; margin-bottom: 20px; }
+        .form-container label { display: block; margin-bottom: 5px; }
+        .form-container input { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .form-container button { width: 100%; padding: 10px; background: #007BFF; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        .error-message { color: red; margin-top: 10px; text-align: center; }
+        .success-message { color: green; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Welcome, Admin</h2>
+        <div class="icons">
+            <img src="images/profile_photo_logo.png" id="profileIcon" alt="Profile">
+            <img src="images/logoutlogo.png" id="logoutBtn" alt="Logout">
+        </div>
+    </div>
+
+    <div class="profile-dropdown" id="profileDropdown">
+        <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
+        <button class="btn-update" onclick="updateProfile()">Update Profile/Password</button>
+       
+    </div>
+
+    <div class="navbar">
+        <button onclick="registerStudents()">Register Students</button>
+        <button onclick="jobOpportunities()">Job Opportunities</button>
+    </div>
+
+    <div class="form-container">
+        <h2>Update Admin Profile</h2>
+        <form id="adminUpdateForm">
+            <label for="adminNameInput">Admin Name:</label>
+            <input type="text" id="adminNameInput" placeholder="Admin Name" value="">
+
+            <label for="adminEmailInput">Admin Email:</label>
+            <input type="email" id="adminEmailInput" placeholder="Admin Email" value="">
+
+            <label for="oldPasswordInput">Old Password:</label>
+            <input type="password" id="oldPasswordInput" placeholder="Old Password">
+
+            <label for="newPasswordInput">New Password:</label>
+            <input type="password" id="newPasswordInput" placeholder="New Password">
+
+            <button type="button" onclick="updateAdminDetails()">Update</button>
+            <p id="message" class="error-message"></p>
+        </form>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://iqskqurljazzejjsjtob.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const { data, error } = await supabase
+                    .from("admin")
+                    .select("name, email")
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById("adminName").textContent = data.name;
+                document.getElementById("adminEmail").textContent = data.email;
+                document.getElementById("adminNameInput").value = data.name;
+                document.getElementById("adminEmailInput").value = data.email;
+
+            } catch (err) {
+                console.error("Error fetching admin details:", err.message);
+                alert("Failed to load admin details!");
+            }
+        });
+
+        document.getElementById("profileIcon").addEventListener("click", () => {
+            const dropdown = document.getElementById("profileDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            alert("Log out..");
+           
+            window.location.href = "index.html";
+        });
+
+        function updateProfile() {
+            alert("Already on update profile page.");
+        }
+
+        function updatePassword() {
+            alert("Already on update profile page.");
+        }
+
+        function registerStudents() {
+            window.location.href = "register_students.html";
+        }
+
+        function jobOpportunities() {
+            window.location.href = "job_opportunities.html";
+        }
+
+        async function updateAdminDetails() {
+            const adminName = document.getElementById("adminNameInput").value;
+            const adminEmail = document.getElementById("adminEmailInput").value;
+            const oldPassword = document.getElementById("oldPasswordInput").value;
+            const newPassword = document.getElementById("newPasswordInput").value;
+            const messageElement = document.getElementById("message");
+
+            try {
+                if (oldPassword && newPassword) {
+                    const { data: adminData, error: adminError } = await supabase
+                        .from("admin")
+                        .select("password")
+                        .single();
+
+                    if (adminError) throw adminError;
+
+                    if (adminData.password !== oldPassword) {
+                        messageElement.textContent = "Invalid old password.";
+                        messageElement.classList.add("error-message");
+                        messageElement.classList.remove("success-message");
+                        return;
+                    }
+
+                    const { error: updateError } = await supabase
+                        .from("admin")
+                        .update({ name: adminName, email: adminEmail, password: newPassword })
+                        .eq("id", 1); // Assuming admin has id 1
+
+                    if (updateError) throw updateError;
+
+                    messageElement.textContent = "Profile updated successfully.";
+                    messageElement.classList.add("success-message");
+                    messageElement.classList.remove("error-message");
+                    document.getElementById("oldPasswordInput").value = "";
+                    document.getElementById("newPasswordInput").value = "";
+
+                } else {
+                    const { error: updateError } = await supabase
+                        .from("admin")
+                        .update({ name: adminName, email: adminEmail })
+                        .eq("id", 1); // Assuming admin has id 1
+
+                    if (updateError) throw updateError;
+
+                    messageElement.textContent = "Profile updated successfully.";
+                    messageElement.classList.add("success-message");
+                    messageElement.classList.remove("error-message");
+                }
+                document.getElementById("adminName").textContent = adminName;
+                document.getElementById("adminEmail").textContent = adminEmail;
+            } catch (err) {
+                console.error("Error updating admin details:", err.message);
+                messageElement.textContent = "Failed to update profile.";
+                messageElement.classList.add("error-message");
+                messageElement.classList.remove("success-message");
+            }
+        }
+    </script>
+
+</body>
+</html>

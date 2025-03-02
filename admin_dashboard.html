@@ -60,8 +60,8 @@
     <div class="profile-dropdown" id="profileDropdown">
         <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
         <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
-        <button class="btn-update" onclick="updateProfile()">Update Profile</button>
-        <button class="btn-update" onclick="updatePassword()">Update Password</button>
+        <button class="btn-update" onclick="updateProfile()">Update Profile/Password</button>
+        
     </div>
 
     <!-- ✅ Navbar -->
@@ -103,13 +103,14 @@
 
         // ✅ Logout Function
         document.getElementById("logoutBtn").addEventListener("click", () => {
+            alert("Log out!");
             window.location.href = "index.html";
         });
 
         // ✅ Update Profile (Placeholder Function)
         function updateProfile() {
            
-            // window.location.href = "update_profile.html";
+            window.location.href = "update_profile.html";
         }
 
         // ✅ Update Password (Placeholder Function)
