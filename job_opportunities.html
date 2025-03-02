@@ -19,6 +19,19 @@
         .icons { display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .icons img { width: 35px; height: 35px; border-radius: 50%; background: white; padding: 5px; }
         
+        .profile-dropdown {
+            display: none; position: absolute; top: 60px; right: 30px; 
+            background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 5px; width: 250px;
+        }
+        .profile-dropdown p { margin: 10px 0; font-size: 14px; }
+        .profile-dropdown button {
+            width: 100%; padding: 10px; margin-top: 10px; 
+            border: none; cursor: pointer; border-radius: 5px;
+        }
+        .btn-update { background: #28a745; color: white; }
+        .btn-logout { background: #dc3545; color: white; }
+
         /* ✅ Navbar with Sub-Navbar */
         .navbar-container {
             display: flex; justify-content: center; align-items: center;
@@ -55,6 +68,13 @@
             <img src="images/logoutlogo.png" id="logoutBtn" alt="Logout">
         </div>
     </div>
+    <div class="profile-dropdown" id="profileDropdown">
+        <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
+        <button class="btn-update" onclick="updateProfile()">Update Profile/Password</button>
+       
+    </div>
+
 
     <!-- ✅ Navbar with Sub-Navbar -->
     <div class="navbar-container">
@@ -69,6 +89,43 @@
     </div>
 
     <script>
+        const SUPABASE_URL = "https://iqskqurljazzejjsjtob.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const { data, error } = await supabase
+                    .from("admin")
+                    .select("name, email")
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById("adminName").textContent = data.name;
+                document.getElementById("adminEmail").textContent = data.email;
+                document.getElementById("adminNameInput").value = data.name;
+                document.getElementById("adminEmailInput").value = data.email;
+
+            } catch (err) {
+                console.error("Error fetching admin details:", err.message);
+                
+            }
+        });
+        document.getElementById("profileIcon").addEventListener("click", () => {
+            const dropdown = document.getElementById("profileDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            alert("Log out..");
+           
+            window.location.href = "index.html";
+        });
+
+        function updateProfile() {
+            window.location.href = "update_profile.html";
+        }
         // ✅ Redirect Functions
         function registerStudents() {
             window.location.href = "register_students.html";

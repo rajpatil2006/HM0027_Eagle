@@ -208,33 +208,33 @@
      <div class="container">
         <h2>Create Job</h2>
         <form id="jobForm">
-            <label>Job Type:</label>
+            <label style="color: #0056b3;">Job Type:</label>
             <div>
                 <label><input type="checkbox" name="jobType" value="Internship"> Internship</label>
                 <label><input type="checkbox" name="jobType" value="Placement"> Placement</label>
                 <label><input type="checkbox" name="jobType" value="Training"> Training</label>
             </div>
 
-            <label>Company Name:</label>
+            <label style="color: #0056b3;">Company Name:</label>
             <input type="text" id="companyName" required>
 
-            <label>Job Profile:</label>
+            <label style="color: #0056b3;">Job Profile:</label>
             <input type="text" id="jobProfile" required>
 
-            <label>Job Details:</label>
+            <label style="color: #0056b3;">Job Details:</label>
             <textarea id="jobDetails" required></textarea>
 
-            <label>Duration:</label>
+            <label style="color: #0056b3;">Duration:</label>
             <input type="text" id="duration">
             
-            <label>Location:</label>
+            <label style="color: #0056b3;">Location:</label>
             <input type="text" id="location" required>
 
             <!-- ✅ Removed Checkboxes, Added Single Input Field -->
-            <label>Job Details Keyword:</label>
+            <label style="color: #0056b3;">Job Details Keyword:</label>
             <input type="text" id="keyword" placeholder="Enter keywords. Separate them through ','." required>
 
-            <label>Applicable Branch:</label>
+            <label style="color: #0056b3;">Applicable Branch:</label>
             <div>
                 <label><input type="checkbox" name="applicableBranch" value="COMP"> COMP</label>
                 <label><input type="checkbox" name="applicableBranch" value="IT"> IT</label>
@@ -245,7 +245,7 @@
                 <label><input type="checkbox" name="applicableBranch" value="ENTC"> ENTC</label>
             </div>
 
-            <label>Applicable Education Status:</label>
+            <label style="color: #0056b3;">Applicable Education Status:</label>
             <div>
                 <label><input type="checkbox" name="educationStatus" value="Completed"> Completed</label>
                 <label><input type="checkbox" name="educationStatus" value="Final Year"> Final Year</label>
@@ -254,7 +254,7 @@
                 <label><input type="checkbox" name="educationStatus" value="1st Year"> 1st Year</label>
             </div>
 
-            <label>Last Date to Apply:</label>
+            <label style="color: #0056b3;">Last Date to Apply:</label>
             <input type="date" id="lastDate" required>
             
             <button type="button" id="submitBtn">Submit Job</button>
@@ -335,12 +335,19 @@
         alert("Error posting job! Check console for details.");
     } else {
         alert("✅ Job posted successfully!");
+        window.location.href = "create_jobs.html";
     }
 }
 
 
             document.getElementById("submitBtn").addEventListener("click", submitJob);
         });
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            alert("Log out..");
+           
+            window.location.href = "index.html";
+        });
+
     </script>
 </body>
 </html>

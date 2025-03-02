@@ -52,8 +52,31 @@
         }
         .btn-view-jobs { background: #28a745; } /* Green */
         .btn-create-jobs { background: #ff8c00; } /* Orange */
-          /* ✅ Profile Dropdown */
-          .profile-dropdown {
+        /* ✅ Profile Dropdown */
+        .profile-dropdown {
+            display: none; position: absolute; top: 60px; right: 30px; 
+            background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 5px; width: 250px;
+        }
+        .profile-dropdown p { margin: 10px 0; font-size: 14px; }
+        .profile-dropdown button {
+            width: 100%; padding: 10px; margin-top: 10px; 
+            border: none; cursor: pointer; border-radius: 5px;
+        }
+        .btn-update { background: #28a745; color: white; }
+        .btn-logout { background: #dc3545; color: white; }
+        /* Search Bar */
+        .search-container {
+            margin: 10px auto;
+            text-align: center;
+        }
+        .search-container input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+        }
+        .profile-dropdown {
             display: none; position: absolute; top: 60px; right: 30px; 
             background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             border-radius: 5px; width: 250px;
@@ -75,15 +98,13 @@
             <img src="images/logoutlogo.png" id="logoutBtn" alt="Logout">
         </div>
     </div>
- <!-- ✅ Profile Dropdown -->
- <div class="profile-dropdown" id="profileDropdown">
-    <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
-    <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
-    <button class="btn-update" onclick="updateProfile()">Update Profile</button>
-    <button class="btn-update" onclick="updatePassword()">Update Password</button>
-</div>
+    <div class="profile-dropdown" id="profileDropdown">
+        <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
+        <button class="btn-update" onclick="updateProfile()">Update Profile/Password</button>
+        
+    </div>
 
-    <!-- ✅ Navbar with Sub-Navbar -->
     <div class="navbar-container">
         <div class="navbar">
             <button onclick="registerStudents()">Register Students</button>
@@ -110,6 +131,9 @@
             window.location.href = "create_jobs.html";
         }
     </script>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by Company Name...">
+    </div>
     <div class="container">
         <h2>Job Listings</h2>
         <table>
@@ -127,7 +151,7 @@
                     <th style="width: 10%">Education Status</th>
                     <th style="width: 10%">Last Date</th>
                     <th style="width: 5%">Application</th>
-                    <th style="width: 5%">Update</th>
+                  
                     <th style="width: 5%">Delete</th>
                 </tr>
             </thead>
@@ -137,40 +161,53 @@
     </div>
 
     <script>
-    
         document.addEventListener("DOMContentLoaded", async function () {
-            const supabaseUrl = "https://iqskqurljazzejjsjtob.supabase.co";
-            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseUrl = "https://iqskqurljazzejjsjtob.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2txdXJsamF6emVqanNqdG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4MTgzMDIsImV4cCI6MjA1NjM5NDMwMn0.kxL5s6myyEa_DiGmRX_3xWBujDrRRm0kc_F62qHOIb8";
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey); // Correct initialization
 
- document.addEventListener("DOMContentLoaded", async () => {
-            try {
-                // ✅ Fetch Admin Details
-                const { data, error } = await supabase
-                    .from("admin")  
-                    .select("name, email") 
-                    .single();
+        try {
+            const { data, error } = await supabaseClient // using supabaseClient variable
+                .from("admin")
+                .select("name, email")
+                .single();
 
-                if (error) throw error;
+            if (error) throw error;
 
-                // ✅ Update UI
-                document.getElementById("adminName").textContent = data.name;
-                document.getElementById("adminEmail").textContent = data.email;
-            } catch (err) {
-                console.error("Error fetching admin details:", err.message);
-                alert("Failed to load admin details!");
-            }
-        });         
-async function fetchJobs() {
-                let { data: jobs, error } = await supabaseClient.from('jobs').select('*').order('id', { ascending: false });
+            document.getElementById("adminName").textContent = data.name;
+            document.getElementById("adminEmail").textContent = data.email;
+        } catch (err) {
+            console.error("Error fetching admin details:", err.message);
+            alert("Failed to load admin details!");
+        }
+    
+            document.getElementById("profileIcon").addEventListener("click", () => {
+                const dropdown = document.getElementById("profileDropdown");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            });
+    
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                alert("Log out..");
+                window.location.href = "index.html";
+            });
+    
+            async function fetchJobs(searchTerm = "") {
+                let query = supabaseClient.from('jobs').select('*').order('id', { ascending: false });
+    
+                if (searchTerm) {
+                    query = query.ilike('companyName', `%${searchTerm}%`);
+                }
+    
+                let { data: jobs, error } = await query;
+    
                 if (error) {
                     console.error("Error fetching jobs:", error);
                     return;
                 }
-                
+    
                 const tableBody = document.getElementById("jobTableBody");
                 tableBody.innerHTML = "";
-                
+    
                 jobs.forEach(job => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
@@ -186,13 +223,13 @@ async function fetchJobs() {
                         <td title="${job.educationStatus ? job.educationStatus.join(', ') : ''}">${job.educationStatus ? job.educationStatus.join(', ') : ''}</td>
                         <td title="${job.lastDate}">${job.lastDate}</td>
                         <td><img src="images/resumelogo.png" class="icon application" onclick="viewApplications(${job.id})"></td>
-                        <td><img src="images/updatelogo.png" class="icon update" onclick="updateJob(${job.id})"></td>
+                       
                         <td><img src="images/deletelogo.png" class="icon delete" onclick="deleteJob(${job.id})"></td>
                     `;
                     tableBody.appendChild(row);
                 });
             }
-
+    
             async function deleteJob(jobId) {
                 if (confirm("Are you sure you want to delete this job?")) {
                     let { error } = await supabaseClient.from('jobs').delete().eq('id', jobId);
@@ -200,21 +237,25 @@ async function fetchJobs() {
                         console.error("Error deleting job:", error);
                     } else {
                         alert("Job deleted successfully!");
-                        fetchJobs();
+                        fetchJobs(document.getElementById("searchInput").value);
                     }
                 }
             }
-
+    
             window.viewApplications = function(jobId) {
                 window.location.href = `view_applications.html?jobId=${jobId}`;
             }
-
+    
             window.updateJob = function(jobId) {
                 window.location.href = `update_job.html?jobId=${jobId}`;
             }
-
+    
             window.deleteJob = deleteJob;
             fetchJobs();
+    
+            document.getElementById("searchInput").addEventListener("input", function() {
+                fetchJobs(this.value);
+            });
         });
     </script>
 </body>
