@@ -22,7 +22,7 @@
             display: flex; flex-direction: column; margin-top: 20px;
             padding: 20px; background: white; border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            overflow: auto; /* Add scrollbar */
+            overflow: auto;
         }
         .navbar {
             display: flex; justify-content: center; gap: 20px;
@@ -36,18 +36,17 @@
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; white-space: nowrap; }
         th { background: #007BFF; color: white; }
-        /* Constant column widths */
-        th:nth-child(1), td:nth-child(1) { width: 50px; } /* Job ID */
-        th:nth-child(2), td:nth-child(2) { width: 150px; } /* Company Name */
-        th:nth-child(3), td:nth-child(3) { width: 150px; } /* Job Profile */
-        th:nth-child(4), td:nth-child(4) { width: 100px; } /* Job Type */
-        th:nth-child(5), td:nth-child(5) { width: 80px; } /* Duration */
-        th:nth-child(6), td:nth-child(6) { width: 200px; } /* Job Details */
-        th:nth-child(7), td:nth-child(7) { width: 120px; } /* Location */
-        th:nth-child(8), td:nth-child(8) { width: 180px; } /* Keywords */
-        th:nth-child(9), td:nth-child(9) { width: 150px; } /* Applicable Branch */
-        th:nth-child(10), td:nth-child(10) { width: 150px; } /* Education Status */
-        th:nth-child(11), td:nth-child(11) { width: 100px; } /* Last Date */
+        th:nth-child(1), td:nth-child(1) { width: 50px; }
+        th:nth-child(2), td:nth-child(2) { width: 150px; }
+        th:nth-child(3), td:nth-child(3) { width: 150px; }
+        th:nth-child(4), td:nth-child(4) { width: 100px; }
+        th:nth-child(5), td:nth-child(5) { width: 80px; }
+        th:nth-child(6), td:nth-child(6) { width: 200px; }
+        th:nth-child(7), td:nth-child(7) { width: 120px; }
+        th:nth-child(8), td:nth-child(8) { width: 180px; }
+        th:nth-child(9), td:nth-child(9) { width: 150px; }
+        th:nth-child(10), td:nth-child(10) { width: 150px; }
+        th:nth-child(11), td:nth-child(11) { width: 100px; }
     </style>
 </head>
 <body>
@@ -78,7 +77,7 @@
                 </tr>
             </thead>
             <tbody id="jobTableBody">
-                </tbody>
+            </tbody>
         </table>
     </div>
     <script>
@@ -116,7 +115,7 @@
             console.log("Applied Jobs:", appliedJobs);
             const appliedJobIds = appliedJobs.map(job => job.jobid);
             if (appliedJobIds.length === 0) {
-                document.getElementById("jobTableBody").innerHTML = 
+                document.getElementById("jobTableBody").innerHTML =
                     "<tr><td colspan='11' style='text-align:center; font-weight:bold; color:red;'>No applied jobs found.</td></tr>";
                 return;
             }
@@ -137,16 +136,16 @@
                 if (job) {
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td><span class="math-inline">\{job\.id\}</td\>
-<td\></span>{job.companyName}</td>
-                        <td><span class="math-inline">\{job\.jobProfile\}</td\>
-<td\></span>{job.jobType}</td>
-                        <td><span class="math-inline">\{job\.duration\}</td\>
-<td\></span>{job.jobDetails}</td>
-                        <td><span class="math-inline">\{job\.location\}</td\>
-<td\></span>{job.keywords}</td>
-                        <td><span class="math-inline">\{job\.applicableBranch ? job\.applicableBranch\.join\(", "\) \: "N/A"\}</td\>
-<td\></span>{job.educationStatus ? job.educationStatus.join(", ") : "N/A"}</td>
+                        <td>${job.id}</td>
+                        <td>${job.companyName}</td>
+                        <td>${job.jobProfile}</td>
+                        <td>${job.jobType}</td>
+                        <td>${job.duration}</td>
+                        <td>${job.jobDetails}</td>
+                        <td>${job.location}</td>
+                        <td>${job.keywords}</td>
+                        <td>${job.applicableBranch ? job.applicableBranch.join(", ") : "N/A"}</td>
+                        <td>${job.educationStatus ? job.educationStatus.join(", ") : "N/A"}</td>
                         <td>${job.lastDate}</td>
                     `;
                     jobTableBody.appendChild(row);
@@ -154,7 +153,7 @@
                 }
             });
             if (!jobsAdded) {
-                jobTableBody.innerHTML = 
+                jobTableBody.innerHTML =
                     "<tr><td colspan='11' style='text-align:center; font-weight:bold; color:red;'>No jobs available.</td></tr>";
             }
         });
